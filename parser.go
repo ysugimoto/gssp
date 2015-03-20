@@ -3,6 +3,7 @@ package css
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 
 	"github.com/k0kubun/pp"
 )
@@ -21,19 +22,27 @@ const (
 
 	DOUBLE_QUOTE = 34
 	SINGLE_QUOTE = 39
+
+	LINE_FEED = 10
 )
 
-var defList = NewDefinitionList()
-var defRule *CSSRule
+var (
+	defList = NewDefinitionList()
+	defRule *CSSRule
+
+	crlf = regexp.MustCompile("\r\n")
+)
 
 type CSSParser struct {
-	lineNumber  int
-	charNumber  int
-	definitions []*CSSDefinition
-	comment     bool
-	quoting     bool
-	singleQuote bool
-	doubleQuote bool
+	lineNumber        int
+	charNumber        int
+	definitions       []*CSSDefinition
+	comment           bool
+	quoting           bool
+	singleQuote       bool
+	doubleQuote       bool
+	inSelector        bool
+	globalDefinitions []*CSSDefinition
 }
 
 func NewParser() *CSSParser {
@@ -45,13 +54,17 @@ func NewParser() *CSSParser {
 }
 
 func (c *CSSParser) Parse(buffer []byte) string {
-	lines := bytes.Split(buffer, []byte("\n"))
+	LF := []byte("\n")
+	buffer = crlf.ReplaceAll(buffer, LF)
 
-	for index, line := range lines {
-		c.lineNumber = index
-		c.charNumber = 0
-		c.parseLine(line, index)
-	}
+	c.execParse(buffer)
+	//lines := bytes.Split(buffer, []byte("\n"))
+
+	//for index, line := range lines {
+	//	c.lineNumber = index
+	//	c.charNumber = 0
+	//	c.parseLine(line, index)
+	//}
 
 	//if len(c.defTree) > 0 {
 	//	pp.Print(c.currentDef)
@@ -63,19 +76,37 @@ func (c *CSSParser) Parse(buffer []byte) string {
 	//	return ""
 	//}
 
-	pp.Print(c)
+	//pp.Print(c)
 
 	return ""
 }
 
-func (c *CSSParser) parseLine(line []byte, index int) {
+func (c *CSSParser) execParse(line []byte) {
+	index := 1
 	for point := 0; point < len(line); point++ {
 		if c.isCommentStart(line, point) {
 			c.comment = true
+			fmt.Println("comment start")
 			continue
 		}
 		if c.isCommentEnd(line, point) {
 			c.comment = false
+			c.charNumber = point + 2
+			fmt.Println("comment end")
+			continue
+		}
+
+		if line[point] == LINE_FEED {
+			val := bytes.Trim(line[c.charNumber:point], ";:\n\t ")
+			if len(val) > 0 {
+				if !c.inSelector && val[0] == CONTROL_SIGNATURE {
+					c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
+						NewSelector(val),
+						index,
+					))
+				}
+			}
+			index++
 			continue
 		}
 
@@ -102,46 +133,71 @@ func (c *CSSParser) parseLine(line []byte, index int) {
 				c.singleQuote = true
 			}
 		case SELECTOR_OPEN:
+			fmt.Println("open")
+			if c.quoting {
+				fmt.Println("open quoting")
+				continue
+			}
 			sel := bytes.TrimSpace(line[c.charNumber:point])
+			fmt.Println(c.charNumber)
+			fmt.Println(point)
 			if len(sel) == 0 {
-				point++
+				fmt.Println("empty")
 				c.charNumber = point
 				continue
 			}
+			pp.Print(sel)
 			def := NewDefinition(
 				NewSelector(sel),
-				index+1,
+				index,
 			)
 			if defList.HasParent() {
 				defList.GetLastChild().AddControl(def)
 			} else {
 				defList.AddDefinition(def)
 			}
-			fmt.Printf("Selector Open: %s\n", string(sel))
-
-			point++
-			c.charNumber = point
+			c.inSelector = true
+			c.charNumber = point + 1
 		case PROPERTY_SEPARSTOR:
-			if defRule != nil && defRule.IsSpecialProperty() {
+			if c.quoting {
+				continue
+			}
+			if defRule != nil && defRule.IsSpecialProperty() || !c.inSelector {
 				continue
 			}
 			defRule = NewRule(
 				bytes.Trim(line[c.charNumber:point], ";:\n\t "),
-				index+1,
+				index,
 				false,
 			)
-			point++
-			c.charNumber = point
+			c.charNumber = point + 1
 		case VALUE_END:
+			if c.quoting {
+				continue
+			}
 			val := bytes.Trim(line[c.charNumber:point], ";:\n\t ")
 			if len(val) == 0 {
 				continue
 			}
+			if !c.inSelector {
+				c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
+					NewSelector(val),
+					index,
+				))
+				point++
+				c.charNumber = point
+				continue
+			}
+			fmt.Println(string(val))
 			defRule.SetValue(val)
 			defList.GetLastChild().AddRule(defRule)
 			defRule = nil
-			c.charNumber = point
+			c.charNumber = point + 1
 		case SELECTOR_CLOSE:
+			fmt.Println("close")
+			if c.quoting {
+				continue
+			}
 			cDef := defList.GetLastChild()
 			if defRule != nil {
 				defRule.SetValue(bytes.Trim(line[c.charNumber:point], ";:\n\t "))
@@ -154,6 +210,8 @@ func (c *CSSParser) parseLine(line []byte, index int) {
 			} else {
 				c.definitions = append(c.definitions, cDef)
 			}
+			c.inSelector = false
+			c.charNumber = point + 1
 		}
 
 		if point == len(line)-1 {
