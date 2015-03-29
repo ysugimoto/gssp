@@ -2,7 +2,6 @@ package css
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 
 	"github.com/k0kubun/pp"
@@ -23,7 +22,12 @@ const (
 	DOUBLE_QUOTE = 34
 	SINGLE_QUOTE = 39
 
+	PARENTHEIS_LEFT  = 40
+	PARENTHEIS_RIGHT = 41
+
 	LINE_FEED = 10
+
+	ESCAPE_SEQUENCE = 92
 )
 
 var (
@@ -35,21 +39,23 @@ var (
 
 type CSSParser struct {
 	lineNumber        int
-	charNumber        int
 	definitions       []*CSSDefinition
 	comment           bool
 	quoting           bool
 	singleQuote       bool
 	doubleQuote       bool
 	inSelector        bool
+	skipping          bool
+	isEscaping        bool
 	globalDefinitions []*CSSDefinition
+	stack             []byte
 }
 
 func NewParser() *CSSParser {
 	return &CSSParser{
 		lineNumber:  0,
-		charNumber:  0,
 		definitions: make([]*CSSDefinition, 0),
+		stack:       []byte{},
 	}
 }
 
@@ -58,25 +64,8 @@ func (c *CSSParser) Parse(buffer []byte) string {
 	buffer = crlf.ReplaceAll(buffer, LF)
 
 	c.execParse(buffer)
-	//lines := bytes.Split(buffer, []byte("\n"))
 
-	//for index, line := range lines {
-	//	c.lineNumber = index
-	//	c.charNumber = 0
-	//	c.parseLine(line, index)
-	//}
-
-	//if len(c.defTree) > 0 {
-	//	pp.Print(c.currentDef)
-	//	fmt.Println("Syntax Error: Unexpected end of css")
-	//	return ""
-	//} else if c.currentRule != nil {
-	//	pp.Print(c.currentRule)
-	//	fmt.Println("Syntax Error: Unexpected end of css")
-	//	return ""
-	//}
-
-	//pp.Print(c)
+	pp.Print(c)
 
 	return ""
 }
@@ -86,36 +75,48 @@ func (c *CSSParser) execParse(line []byte) {
 	for point := 0; point < len(line); point++ {
 		if c.isCommentStart(line, point) {
 			c.comment = true
-			fmt.Println("comment start")
 			continue
 		}
 		if c.isCommentEnd(line, point) {
 			c.comment = false
-			c.charNumber = point + 2
-			fmt.Println("comment end")
-			continue
-		}
-
-		if line[point] == LINE_FEED {
-			val := bytes.Trim(line[c.charNumber:point], ";:\n\t ")
-			if len(val) > 0 {
-				if !c.inSelector && val[0] == CONTROL_SIGNATURE {
-					c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
-						NewSelector(val),
-						index,
-					))
-				}
-			}
-			index++
+			point++
 			continue
 		}
 
 		if c.comment {
-			c.charNumber++
 			continue
 		}
 
 		switch line[point] {
+		case ESCAPE_SEQUENCE:
+			c.skipping = true
+			c.isEscaping = true
+			c.stack = append(c.stack, ESCAPE_SEQUENCE)
+			continue
+		case PARENTHEIS_LEFT:
+			if !c.quoting {
+				c.skipping = true
+			}
+		case PARENTHEIS_RIGHT:
+			if !c.quoting {
+				c.skipping = false
+			}
+		case LINE_FEED:
+			val := bytes.Trim(c.stack, ";:\n\t ")
+			c.stack = []byte{}
+			if len(val) > 0 {
+				if !c.inSelector && val[0] == CONTROL_SIGNATURE {
+					c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
+						NewSelector(val),
+						index+1,
+					))
+				} else if defRule != nil {
+					defRule.SetValue(val)
+					defList.GetLastChild().AddRule(defRule)
+					defRule = nil
+				}
+			}
+			index++
 		case DOUBLE_QUOTE:
 			if c.doubleQuote && c.quoting {
 				c.quoting = false
@@ -133,76 +134,66 @@ func (c *CSSParser) execParse(line []byte) {
 				c.singleQuote = true
 			}
 		case SELECTOR_OPEN:
-			fmt.Println("open")
 			if c.quoting {
-				fmt.Println("open quoting")
-				continue
+				c.stack = append(c.stack, line[point])
+				break
 			}
-			sel := bytes.TrimSpace(line[c.charNumber:point])
-			fmt.Println(c.charNumber)
-			fmt.Println(point)
-			if len(sel) == 0 {
-				fmt.Println("empty")
-				c.charNumber = point
-				continue
-			}
-			pp.Print(sel)
+			sel := bytes.TrimSpace(c.stack)
+			c.stack = []byte{}
 			def := NewDefinition(
 				NewSelector(sel),
-				index,
+				index+1,
 			)
-			if defList.HasParent() {
-				defList.GetLastChild().AddControl(def)
-			} else {
-				defList.AddDefinition(def)
-			}
+			defList.AddDefinition(def)
 			c.inSelector = true
-			c.charNumber = point + 1
+			continue
 		case PROPERTY_SEPARSTOR:
 			if c.quoting {
+				c.stack = append(c.stack, line[point])
 				continue
 			}
 			if defRule != nil && defRule.IsSpecialProperty() || !c.inSelector {
+				c.stack = append(c.stack, PROPERTY_SEPARSTOR)
 				continue
 			}
 			defRule = NewRule(
-				bytes.Trim(line[c.charNumber:point], ";:\n\t "),
-				index,
+				bytes.Trim(c.stack, ";:\n\t "),
+				index+1,
 				false,
 			)
-			c.charNumber = point + 1
+			c.stack = []byte{}
 		case VALUE_END:
-			if c.quoting {
+			if c.quoting || c.skipping {
+				c.stack = append(c.stack, line[point])
 				continue
 			}
-			val := bytes.Trim(line[c.charNumber:point], ";:\n\t ")
+			val := bytes.Trim(c.stack, ";:\n\t ")
+			c.stack = []byte{}
 			if len(val) == 0 {
 				continue
 			}
 			if !c.inSelector {
 				c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
 					NewSelector(val),
-					index,
+					index+1,
 				))
 				point++
-				c.charNumber = point
 				continue
 			}
-			fmt.Println(string(val))
 			defRule.SetValue(val)
 			defList.GetLastChild().AddRule(defRule)
 			defRule = nil
-			c.charNumber = point + 1
 		case SELECTOR_CLOSE:
-			fmt.Println("close")
 			if c.quoting {
+				c.stack = append(c.stack, line[point])
 				continue
 			}
 			cDef := defList.GetLastChild()
 			if defRule != nil {
-				defRule.SetValue(bytes.Trim(line[c.charNumber:point], ";:\n\t "))
+				defRule.SetValue(bytes.Trim(c.stack, ";:\n\t "))
 				cDef.AddRule(defRule)
 				defRule = nil
+				c.stack = []byte{}
 			}
 			defList.Remove()
 			if defList.Remains() {
@@ -211,20 +202,22 @@ func (c *CSSParser) execParse(line []byte) {
 				c.definitions = append(c.definitions, cDef)
 			}
 			c.inSelector = false
-			c.charNumber = point + 1
 		}
 
-		if point == len(line)-1 {
-			if defRule != nil {
-				defRule.SetValue(bytes.Trim(line[c.charNumber:], ";: "))
-				defList.GetLastChild().AddRule(defRule)
-				defRule = nil
-			}
-			if defList.Remains() {
-				c.definitions = append(c.definitions, defList.GetLastChild())
-				//defList.Remove()
-			}
+		if c.isEscaping {
+			c.isEscaping = false
+			c.skipping = false
 		}
+		c.stack = append(c.stack, line[point])
+	}
+
+	if defRule != nil {
+		defRule.SetValue(bytes.Trim(c.stack, ";: "))
+		defList.GetLastChild().AddRule(defRule)
+		defRule = nil
+	}
+	if defList.Remains() {
+		c.definitions = append(c.definitions, defList.GetLastChild())
 	}
 }
 

@@ -1,7 +1,5 @@
 package css
 
-import "log"
-
 type CSSDefinitionList struct {
 	definitions []*CSSDefinition
 }
@@ -37,7 +35,6 @@ func (l *CSSDefinitionList) HasParent() (has bool) {
 }
 
 func (l *CSSDefinitionList) GetLastChild() *CSSDefinition {
-	log.Printf("size: %d", len(l.definitions))
 	return l.definitions[len(l.definitions)-1]
 }
 

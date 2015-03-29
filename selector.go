@@ -8,7 +8,7 @@ type CSSSelector struct {
 func NewSelector(selBytes []byte) *CSSSelector {
 	var isControl bool
 
-	if selBytes[0] == CONTROL_SIGNATURE {
+	if len(selBytes) > 0 && selBytes[0] == CONTROL_SIGNATURE {
 		isControl = true
 	} else {
 		isControl = false
