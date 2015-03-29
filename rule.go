@@ -5,13 +5,18 @@ type CSSRule struct {
 	value     string
 	immutable bool
 	defLine   int
+	before    string
+	after     string
 }
 
 func NewRule(property []byte, line int, immutable bool) *CSSRule {
+	before, prop, after := parseBytes(property)
 	return &CSSRule{
-		property:  string(property),
+		property:  string(prop),
 		defLine:   line,
 		immutable: immutable,
+		before:    string(before),
+		after:     string(after),
 	}
 }
 

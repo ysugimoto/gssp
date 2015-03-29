@@ -34,7 +34,8 @@ var (
 	defList = NewDefinitionList()
 	defRule *CSSRule
 
-	crlf = regexp.MustCompile("\r\n")
+	crlf      = regexp.MustCompile("\r\n")
+	trimRegex = regexp.MustCompile("([\n\t ]*)([a-zA-Z0-9-]+)([;\n ]*)")
 )
 
 type CSSParser struct {
@@ -103,8 +104,8 @@ func (c *CSSParser) execParse(line []byte) {
 			}
 		case LINE_FEED:
 			val := bytes.Trim(c.stack, ";:\n\t ")
-			c.stack = []byte{}
 			if len(val) > 0 {
+				c.stack = []byte{}
 				if !c.inSelector && val[0] == CONTROL_SIGNATURE {
 					c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
 						NewSelector(val),
@@ -138,14 +139,13 @@ func (c *CSSParser) execParse(line []byte) {
 				c.stack = append(c.stack, line[point])
 				break
 			}
-			sel := bytes.TrimSpace(c.stack)
-			c.stack = []byte{}
 			def := NewDefinition(
-				NewSelector(sel),
+				NewSelector(c.stack),
 				index+1,
 			)
 			defList.AddDefinition(def)
 			c.inSelector = true
+			c.stack = []byte{}
 			continue
 		case PROPERTY_SEPARSTOR:
 			if c.quoting {
@@ -157,32 +157,30 @@ func (c *CSSParser) execParse(line []byte) {
 				continue
 			}
 			defRule = NewRule(
-				bytes.Trim(c.stack, ";:\n\t "),
+				c.stack,
 				index+1,
 				false,
 			)
 			c.stack = []byte{}
+			continue
 		case VALUE_END:
 			if c.quoting || c.skipping {
 				c.stack = append(c.stack, line[point])
 				continue
 			}
-			val := bytes.Trim(c.stack, ";:\n\t ")
-			c.stack = []byte{}
-			if len(val) == 0 {
-				continue
-			}
 			if !c.inSelector {
 				c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
-					NewSelector(val),
+					NewSelector(c.stack),
 					index+1,
 				))
-				point++
+				c.stack = []byte{}
 				continue
 			}
-			defRule.SetValue(val)
+			defRule.SetValue(c.stack)
 			defList.GetLastChild().AddRule(defRule)
 			defRule = nil
+			c.stack = []byte{}
+			continue
 		case SELECTOR_CLOSE:
 			if c.quoting {
 				c.stack = append(c.stack, line[point])
@@ -190,7 +188,7 @@ func (c *CSSParser) execParse(line []byte) {
 			}
 			cDef := defList.GetLastChild()
 			if defRule != nil {
-				defRule.SetValue(bytes.Trim(c.stack, ";:\n\t "))
+				defRule.SetValue(c.stack)
 				cDef.AddRule(defRule)
 				defRule = nil
 				c.stack = []byte{}
@@ -212,7 +210,7 @@ func (c *CSSParser) execParse(line []byte) {
 	}
 
 	if defRule != nil {
-		defRule.SetValue(bytes.Trim(c.stack, ";: "))
+		defRule.SetValue(c.stack)
 		defList.GetLastChild().AddRule(defRule)
 		defRule = nil
 	}
