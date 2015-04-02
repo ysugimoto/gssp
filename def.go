@@ -5,13 +5,15 @@ type CSSDefinition struct {
 	rules    []*CSSRule
 	controls []*CSSDefinition
 	defLine  int
+	point    int
 	parent   *CSSDefinition
 }
 
-func NewDefinition(selector *CSSSelector, line int) *CSSDefinition {
+func NewDefinition(selector *CSSSelector, line, point int) *CSSDefinition {
 	return &CSSDefinition{
 		selector: selector,
 		defLine:  line,
+		point:    point,
 		rules:    make([]*CSSRule, 0),
 		controls: make([]*CSSDefinition, 0),
 	}
