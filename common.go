@@ -5,6 +5,7 @@ import "regexp"
 var (
 	leftRegex  = regexp.MustCompile("^([;\n\t ]*)")
 	rightRegex = regexp.MustCompile("[\n\t ]*$")
+	spaceRegex = regexp.MustCompile("[\n ]+")
 )
 
 func parseBytes(data []byte) (before, value, after []byte) {
@@ -15,6 +16,8 @@ func parseBytes(data []byte) (before, value, after []byte) {
 	right := rightRegex.FindSubmatchIndex(data)
 	value = data[:right[0]]
 	after = data[right[0]:]
+
+	value = spaceRegex.ReplaceAll(value, []byte(" "))
 
 	return
 }

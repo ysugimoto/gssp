@@ -1,24 +1,22 @@
 package css
 
 type CSSRule struct {
-	property  string
-	value     string
-	immutable bool
-	defLine   int
-	point     int
-	before    string
-	after     string
+	property string
+	value    *CSSValue
+	defLine  int
+	point    int
+	before   string
+	after    string
 }
 
-func NewRule(property []byte, line, point int, immutable bool) *CSSRule {
+func NewRule(property []byte, line, point int) *CSSRule {
 	before, prop, after := parseBytes(property)
 	return &CSSRule{
-		property:  string(prop),
-		defLine:   line,
-		point:     point,
-		immutable: immutable,
-		before:    string(before),
-		after:     string(after),
+		property: string(prop),
+		defLine:  line,
+		point:    point,
+		before:   string(before),
+		after:    string(after),
 	}
 }
 
@@ -31,6 +29,6 @@ func (r *CSSRule) IsSpecialProperty() (special bool) {
 	return
 }
 
-func (r *CSSRule) SetValue(value []byte) {
-	r.value = string(value)
+func (r *CSSRule) SetValue(value []byte, index, point int) {
+	r.value = NewValue(value, index, point, false)
 }

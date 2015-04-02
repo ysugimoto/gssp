@@ -82,17 +82,18 @@ func (c *CSSParser) processEscapeSequence() {
 func (c *CSSParser) processLineFeed(index, point *int) {
 	val := bytes.Trim(c.stack, ";:\n\t ")
 	if len(val) > 0 {
-		c.stack = []byte{}
 		if !c.inSelector && val[0] == CONTROL_SIGNATURE {
 			c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
 				NewSelector(c.stack),
 				*index,
 				*point-len(c.stack)+1,
 			))
+			c.stack = []byte{}
 		} else if defRule != nil {
-			defRule.SetValue(val)
+			defRule.SetValue(c.stack, *index, *point-len(c.stack)+1)
 			defList.GetLastChild().AddRule(defRule)
 			defRule = nil
+			c.stack = []byte{}
 		}
 	}
 }
@@ -117,7 +118,6 @@ func (c *CSSParser) processPropertySeparator(index, point *int) {
 		c.stack,
 		*index,
 		*point-len(c.stack)+1,
-		false,
 	)
 	c.stack = []byte{}
 }
@@ -132,7 +132,7 @@ func (c *CSSParser) processValueEnd(index, point *int) {
 		c.stack = []byte{}
 		return
 	}
-	defRule.SetValue(c.stack)
+	defRule.SetValue(c.stack, *index, *point-len(c.stack)+1)
 	defList.GetLastChild().AddRule(defRule)
 	defRule = nil
 	c.stack = []byte{}
@@ -141,7 +141,7 @@ func (c *CSSParser) processValueEnd(index, point *int) {
 func (c *CSSParser) processSelectorClose(index, point *int) {
 	cDef := defList.GetLastChild()
 	if defRule != nil {
-		defRule.SetValue(c.stack)
+		defRule.SetValue(c.stack, *index, *point-len(c.stack)+1)
 		cDef.AddRule(defRule)
 		defRule = nil
 		c.stack = []byte{}
@@ -266,7 +266,7 @@ func (c *CSSParser) execParse(line []byte) {
 
 	// check remains
 	if defRule != nil {
-		defRule.SetValue(c.stack)
+		defRule.SetValue(c.stack, index, len(line)-len(c.stack)+1)
 		defList.GetLastChild().AddRule(defRule)
 		defRule = nil
 	}
