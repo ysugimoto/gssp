@@ -41,7 +41,7 @@ func TestParser(t *testing.T) {
 		for _, file := range cssList {
 			Context(file+".css parse test", func() {
 				It(file+".css should be same "+file+".json", func() {
-					parser := css.NewParser()
+					parser := gssp.NewParser()
 					cssfp, _ := os.Open(file + ".css")
 					jsonfp, _ := os.Open(file + ".json")
 
