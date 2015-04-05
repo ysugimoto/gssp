@@ -1,13 +1,13 @@
 package css
 
 type CSSValue struct {
-	Value     string
-	DefLine   int
-	Point     int
-	Before    string
-	After     string
-	Semicolon bool
-	RawData   string
+	Value     string `json:"data"`
+	DefLine   int    `json:"line"`
+	Point     int    `json:"column"`
+	Before    string `json:"before"`
+	After     string `json:"after"`
+	Semicolon bool   `json:"semicolon"`
+	RawData   string `json:"raw"`
 }
 
 func NewValue(val []byte, line, point int, semicolon bool) *CSSValue {

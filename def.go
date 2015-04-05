@@ -1,12 +1,12 @@
 package css
 
 type CSSDefinition struct {
-	Selector *CSSSelector
-	Rules    []*CSSRule
-	Controls []*CSSDefinition
-	DefLine  int
-	Point    int
-	Parent   *CSSDefinition
+	Selector *CSSSelector     `json:"selector"`
+	Rules    []*CSSRule       `json:"rules"`
+	Controls []*CSSDefinition `json:"controls"`
+	DefLine  int              `json:"line"`
+	Point    int              `json:"column"`
+	Parent   *CSSDefinition   `json:"-"`
 }
 
 func NewDefinition(selector *CSSSelector, line, point int) *CSSDefinition {

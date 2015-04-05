@@ -1,12 +1,12 @@
 package css
 
 type CSSSelector struct {
-	Selector        string
-	ControlSelector bool
-	Before          string
-	After           string
-	RawData         string
-	RawOffset       int
+	Selector        string `json:"selector"`
+	ControlSelector bool   `json:"atrule"`
+	Before          string `json:"before"`
+	After           string `json:"after"`
+	RawData         string `json:"raw"`
+	RawOffset       int    `json:"-"`
 }
 
 func NewSelector(selBytes []byte) *CSSSelector {

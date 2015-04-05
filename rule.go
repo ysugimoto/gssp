@@ -1,15 +1,15 @@
 package css
 
 type CSSRule struct {
-	Property  string
-	Value     *CSSValue
-	DefLine   int
-	Point     int
-	Before    string
-	After     string
-	RawData   string
-	RawPoint  int
-	RawOffset int
+	Property  string    `json:"property"`
+	Value     *CSSValue `json:"value"`
+	DefLine   int       `json:"line"`
+	Point     int       `json:"column"`
+	Before    string    `json:"before"`
+	After     string    `json:"after"`
+	RawData   string    `json:"raw"`
+	RawPoint  int       `json:"-"`
+	RawOffset int       `json:"-"`
 }
 
 func NewRule(property []byte, line, point int) *CSSRule {
