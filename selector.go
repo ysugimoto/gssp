@@ -5,12 +5,12 @@ type CSSSelector struct {
 	ControlSelector bool
 	Before          string
 	After           string
-	//RawData         []byte
-	RawData string
+	RawData         string
+	RawOffset       int
 }
 
 func NewSelector(selBytes []byte) *CSSSelector {
-	before, selector, after := parseBytes(selBytes)
+	before, selector, after, offset := parseBytes(selBytes)
 	var isControl bool
 
 	if len(selector) > 0 && selector[0] == CONTROL_SIGNATURE {
@@ -25,6 +25,7 @@ func NewSelector(selBytes []byte) *CSSSelector {
 		ControlSelector: isControl,
 		After:           string(after),
 		RawData:         string(selBytes),
+		RawOffset:       offset,
 	}
 }
 

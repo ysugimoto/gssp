@@ -8,15 +8,14 @@ type CSSValue struct {
 	After     string
 	Semicolon bool
 	RawData   string
-	//RawData   []byte
 }
 
 func NewValue(val []byte, line, point int, semicolon bool) *CSSValue {
-	before, value, after := parseBytes(val)
+	before, value, after, offset := parseBytes(val)
 	return &CSSValue{
 		Value:     string(value),
 		DefLine:   line,
-		Point:     point,
+		Point:     point - offset,
 		Before:    string(before),
 		After:     string(after),
 		RawData:   string(val),

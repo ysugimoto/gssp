@@ -2,7 +2,7 @@ package css
 
 import (
 	"bytes"
-	"regexp"
+	"github.com/k0kubun/pp"
 )
 
 // Byte number of signatures
@@ -23,23 +23,21 @@ const (
 	ESCAPE_SEQUENCE    = 92  // "\"
 )
 
-var (
-	crlf    = regexp.MustCompile("\r\n")
-	defList = NewDefinitionList()
-	defRule *CSSRule
-)
-
 type CSSParser struct {
-	lineNumber  int
-	definitions []*CSSDefinition
-	comment     bool
-	quoting     bool
-	singleQuote bool
-	doubleQuote bool
-	inSelector  bool
-	skipping    bool
-	isEscaping  bool
-	stack       []byte
+	lineNumber   int
+	definitions  []*CSSDefinition
+	comment      bool
+	quoting      bool
+	singleQuote  bool
+	doubleQuote  bool
+	inSelector   bool
+	skipping     bool
+	isEscaping   bool
+	inParentheis bool
+	defList      *CSSDefinitionList
+	defRule      *CSSRule
+	charPoint    int
+	stack        []byte
 }
 
 func NewParser() *CSSParser {
@@ -47,98 +45,132 @@ func NewParser() *CSSParser {
 		lineNumber:  0,
 		definitions: make([]*CSSDefinition, 0),
 		stack:       []byte{},
+		defList:     NewDefinitionList(),
+		defRule:     nil,
+		charPoint:   0,
 	}
 }
 
 func (c *CSSParser) Parse(buffer []byte) []*CSSDefinition {
-	LF := []byte("\n")
-	buffer = crlf.ReplaceAll(buffer, LF)
+	//defer func() {
+	//	if r := recover(); r != nil {
+	//		println(c.charPoint)
+
+	//	}
+	//	pp.Print(c)
+	//}()
 
 	c.execParse(buffer)
+	pp.Print(string(c.stack))
 
 	return c.definitions
 }
 
 func (c *CSSParser) processEscapeSequence() {
-	c.skipping = true
-	c.isEscaping = true
+	if !c.skipping {
+		c.skipping = true
+		c.isEscaping = true
+	} else {
+		c.skipping = false
+		c.isEscaping = false
+	}
+
 	c.stack = append(c.stack, ESCAPE_SEQUENCE)
 }
 
-func (c *CSSParser) processLineFeed(index, point *int) {
+func (c *CSSParser) processLineFeed(index *int) {
 	val := bytes.Trim(c.stack, ";:\n\t ")
 	if len(val) > 0 {
 		if !c.inSelector && val[0] == CONTROL_SIGNATURE {
 			c.definitions = append(c.definitions, NewDefinition(
 				NewSelector(c.stack),
 				*index,
-				*point-len(c.stack)+1,
+				c.charPoint,
 			))
 			c.stack = []byte{}
-		} else if defRule != nil {
-			defRule.SetValue(c.stack, *index, *point-len(c.stack)+1, false)
-			defList.GetLastChild().AddRule(defRule)
-			defRule = nil
+		} else if c.defRule != nil {
+			c.defRule.SetValue(
+				c.stack,
+				*index,
+				c.charPoint,
+				false,
+			)
+			c.defList.GetLastChild().AddRule(c.defRule)
+			c.defRule = nil
 			c.stack = []byte{}
 		}
 	}
+	c.charPoint = 0
 }
 
-func (c *CSSParser) processSelectorOpen(index, point *int) {
+func (c *CSSParser) processSelectorOpen(index *int) {
 	def := NewDefinition(
 		NewSelector(c.stack),
 		*index,
-		*point-len(c.stack)+1,
+		c.charPoint,
 	)
-	defList.AddDefinition(def)
+	c.defList.AddDefinition(def)
 	c.inSelector = true
 	c.stack = []byte{}
 }
 
-func (c *CSSParser) processPropertySeparator(index, point *int) {
-	if defRule != nil && defRule.IsSpecialProperty() || !c.inSelector {
+func (c *CSSParser) processPropertySeparator(index *int) {
+	if c.defRule != nil && c.defRule.IsSpecialProperty() || !c.inSelector {
 		c.stack = append(c.stack, PROPERTY_SEPARSTOR)
 		return
 	}
-	defRule = NewRule(
+	c.defRule = NewRule(
 		c.stack,
 		*index,
-		*point-len(c.stack)+1,
+		c.charPoint,
 	)
+
 	c.stack = []byte{}
 }
 
-func (c *CSSParser) processValueEnd(index, point *int) {
+func (c *CSSParser) processValueEnd(index *int) {
 	if !c.inSelector {
 		c.definitions = append(c.definitions, NewDefinition(
 			NewSelector(c.stack),
 			*index,
-			*point-len(c.stack)+1,
+			c.charPoint,
 		))
 		c.stack = []byte{}
 		return
 	}
-	defRule.SetValue(c.stack, *index, *point-len(c.stack)+1, true)
-	defList.GetLastChild().AddRule(defRule)
-	defRule = nil
+	if !isEmptyStack(c.stack) {
+		c.defRule.SetValue(
+			c.stack,
+			*index,
+			c.charPoint,
+			true,
+		)
+		c.defList.GetLastChild().AddRule(c.defRule)
+		c.defRule = nil
+	}
 	c.stack = []byte{}
 }
 
-func (c *CSSParser) processSelectorClose(index, point *int) {
-	cDef := defList.GetLastChild()
-	if defRule != nil {
-		defRule.SetValue(c.stack, *index, *point-len(c.stack)+1, false)
-		cDef.AddRule(defRule)
-		defRule = nil
-		c.stack = []byte{}
+func (c *CSSParser) processSelectorClose(index *int) {
+	cDef := c.defList.GetLastChild()
+	if c.defRule != nil {
+		c.defRule.SetValue(
+			c.stack,
+			*index,
+			c.charPoint,
+			false,
+		)
+		cDef.AddRule(c.defRule)
+		c.defRule = nil
 	}
-	defList.Remove()
-	if defList.Remains() {
-		defList.GetLastChild().AddControl(cDef)
+	c.defList.Remove()
+	if c.defList.Remains() {
+		c.defList.GetLastChild().AddControl(cDef)
 	} else {
 		c.definitions = append(c.definitions, cDef)
 	}
 	c.inSelector = false
+	c.stack = []byte{}
 }
 
 func (c *CSSParser) isCommentStart(line []byte, point int) (start bool) {
@@ -168,6 +200,7 @@ func (c *CSSParser) isCommentEnd(line []byte, point int) (end bool) {
 func (c *CSSParser) execParse(line []byte) {
 	index := 1
 	for point := 0; point < len(line); point++ {
+		c.charPoint++
 		if c.isCommentStart(line, point) {
 			c.comment = true
 			c.stack = append(c.stack, line[point])
@@ -177,6 +210,7 @@ func (c *CSSParser) execParse(line []byte) {
 			c.comment = false
 			c.stack = append(c.stack, COMMENT_STAR, COMMENT_SLASH)
 			point++
+			c.charPoint++
 			continue
 		}
 
@@ -191,17 +225,20 @@ func (c *CSSParser) execParse(line []byte) {
 			continue
 		case PARENTHEIS_LEFT:
 			if !c.quoting {
-				c.skipping = true
+				c.inParentheis = true
 			}
 		case PARENTHEIS_RIGHT:
 			if !c.quoting {
-				c.skipping = false
+				c.inParentheis = false
 			}
 		case LINE_FEED:
-			c.processLineFeed(&index, &point)
+			c.processLineFeed(&index)
 			index++
 		case DOUBLE_QUOTE:
-			if c.doubleQuote && c.quoting {
+			if c.skipping || c.singleQuote {
+				break
+			}
+			if c.doubleQuote {
 				c.quoting = false
 				c.doubleQuote = false
 			} else {
@@ -209,7 +246,10 @@ func (c *CSSParser) execParse(line []byte) {
 				c.doubleQuote = true
 			}
 		case SINGLE_QUOTE:
-			if c.singleQuote && c.quoting {
+			if c.skipping || c.doubleQuote {
+				break
+			}
+			if c.singleQuote {
 				c.quoting = false
 				c.singleQuote = false
 			} else {
@@ -217,32 +257,28 @@ func (c *CSSParser) execParse(line []byte) {
 				c.singleQuote = true
 			}
 		case SELECTOR_OPEN:
-			if c.quoting {
-				c.stack = append(c.stack, line[point])
+			if c.quoting || c.skipping || c.inParentheis {
 				break
 			}
-			c.processSelectorOpen(&index, &point)
+			c.processSelectorOpen(&index)
 			continue
 		case PROPERTY_SEPARSTOR:
-			if c.quoting {
-				c.stack = append(c.stack, line[point])
-				continue
+			if c.quoting || c.skipping || c.inParentheis {
+				break
 			}
-			c.processPropertySeparator(&index, &point)
+			c.processPropertySeparator(&index)
 			continue
 		case VALUE_END:
-			if c.quoting || c.skipping {
-				c.stack = append(c.stack, line[point])
-				continue
+			if c.quoting || c.skipping || c.inParentheis {
+				break
 			}
-			c.processValueEnd(&index, &point)
+			c.processValueEnd(&index)
 			continue
 		case SELECTOR_CLOSE:
-			if c.quoting {
-				c.stack = append(c.stack, line[point])
-				continue
+			if c.quoting || c.skipping || c.inParentheis {
+				break
 			}
-			c.processSelectorClose(&index, &point)
+			c.processSelectorClose(&index)
 			continue
 		}
 
@@ -254,12 +290,17 @@ func (c *CSSParser) execParse(line []byte) {
 	}
 
 	// check remains
-	if defRule != nil {
-		defRule.SetValue(c.stack, index, len(line)-len(c.stack)+1, false)
-		defList.GetLastChild().AddRule(defRule)
-		defRule = nil
+	if c.defRule != nil {
+		c.defRule.SetValue(
+			c.stack,
+			index,
+			c.charPoint,
+			false,
+		)
+		c.defList.GetLastChild().AddRule(c.defRule)
+		c.defRule = nil
 	}
-	if defList.Remains() {
-		c.definitions = append(c.definitions, defList.GetLastChild())
+	if c.defList.Remains() {
+		c.definitions = append(c.definitions, c.defList.GetLastChild())
 	}
 }

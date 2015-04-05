@@ -1,25 +1,28 @@
 package css
 
 type CSSRule struct {
-	Property string
-	Value    *CSSValue
-	DefLine  int
-	Point    int
-	Before   string
-	After    string
-	RawData  string
-	//RawData  []byte
+	Property  string
+	Value     *CSSValue
+	DefLine   int
+	Point     int
+	Before    string
+	After     string
+	RawData   string
+	RawPoint  int
+	RawOffset int
 }
 
 func NewRule(property []byte, line, point int) *CSSRule {
-	before, prop, after := parseBytes(property)
+	before, prop, after, offset := parseBytes(property)
 	return &CSSRule{
-		Property: string(prop),
-		DefLine:  line,
-		Point:    point,
-		Before:   string(before),
-		After:    string(after),
-		RawData:  string(property),
+		Property:  string(prop),
+		DefLine:   line,
+		Point:     point - offset,
+		Before:    string(before),
+		After:     string(after),
+		RawData:   string(property),
+		RawPoint:  point,
+		RawOffset: offset,
 	}
 }
 
@@ -28,6 +31,8 @@ func (r *CSSRule) IsSpecialProperty() (special bool) {
 	if r.Property == "filter" {
 		special = true
 	}
+
+	// TODO: Other case?
 
 	return
 }

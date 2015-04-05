@@ -13,7 +13,7 @@ func NewDefinition(selector *CSSSelector, line, point int) *CSSDefinition {
 	return &CSSDefinition{
 		Selector: selector,
 		DefLine:  line,
-		Point:    point,
+		Point:    point - selector.RawOffset,
 		Rules:    make([]*CSSRule, 0),
 		Controls: make([]*CSSDefinition, 0),
 	}
