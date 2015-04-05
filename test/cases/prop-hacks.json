@@ -1,0 +1,67 @@
+[
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a "
+    },
+    "rules": [
+      {
+        "property": "*color",
+        "value": {
+          "data": "black",
+          "line": 2,
+          "column": 14,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " black"
+        },
+        "line": 2,
+        "column": 5,
+        "before": "\n    ",
+        "after": " ",
+        "raw": "\n    *color "
+      },
+      {
+        "property": "_background",
+        "value": {
+          "data": "white",
+          "line": 3,
+          "column": 18,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " white"
+        },
+        "line": 3,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    _background"
+      },
+      {
+        "property": "font-size",
+        "value": {
+          "data": "big",
+          "line": 4,
+          "column": 20,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " big"
+        },
+        "line": 4,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    font-size/**/"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

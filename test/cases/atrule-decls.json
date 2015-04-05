@@ -1,0 +1,157 @@
+[
+  {
+    "selector": {
+      "selector": "@page :left",
+      "atrule": true,
+      "before": "",
+      "after": " ",
+      "raw": "@page :left "
+    },
+    "rules": [
+      {
+        "property": "background",
+        "value": {
+          "data": "black",
+          "line": 2,
+          "column": 17,
+          "before": " ",
+          "after": "",
+          "semicolon": false,
+          "raw": " black"
+        },
+        "line": 2,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    background"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "@media(min-width: 0)",
+      "atrule": true,
+      "before": "\n\n",
+      "after": " ",
+      "raw": "\n\n@media(min-width: 0) "
+    },
+    "rules": [
+      {
+        "property": "background",
+        "value": {
+          "data": "white",
+          "line": 6,
+          "column": 17,
+          "before": " ",
+          "after": "",
+          "semicolon": false,
+          "raw": " white"
+        },
+        "line": 6,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    background"
+      }
+    ],
+    "controls": [],
+    "line": 5,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "@font-face",
+      "atrule": true,
+      "before": "\n\n",
+      "after": " ",
+      "raw": "\n\n@font-face "
+    },
+    "rules": [
+      {
+        "property": "family-name",
+        "value": {
+          "data": "\"A;' \"",
+          "line": 10,
+          "column": 18,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " \"A;' /**/\""
+        },
+        "line": 10,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    family-name"
+      }
+    ],
+    "controls": [],
+    "line": 9,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "@viewport",
+      "atrule": true,
+      "before": "\n\n",
+      "after": " ",
+      "raw": "\n\n@viewport "
+    },
+    "rules": [
+      {
+        "property": "width",
+        "value": {
+          "data": "110px",
+          "line": 14,
+          "column": 12,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " 110px"
+        },
+        "line": 14,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    width"
+      }
+    ],
+    "controls": [],
+    "line": 13,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "@-ms-viewport",
+      "atrule": true,
+      "before": "\n\n",
+      "after": " ",
+      "raw": "\n\n@-ms-viewport "
+    },
+    "rules": [
+      {
+        "property": "width",
+        "value": {
+          "data": "100px",
+          "line": 18,
+          "column": 12,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " 100px"
+        },
+        "line": 18,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    width"
+      }
+    ],
+    "controls": [],
+    "line": 17,
+    "column": 1
+  }
+]

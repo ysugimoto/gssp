@@ -1,4 +1,4 @@
-package css
+package gssp
 
 type CSSControl struct {
 	*CSSRule

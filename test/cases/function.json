@@ -1,0 +1,33 @@
+[
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a "
+    },
+    "rules": [
+      {
+        "property": "background-image",
+        "value": {
+          "data": "url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)",
+          "line": 2,
+          "column": 23,
+          "before": " ",
+          "after": "",
+          "semicolon": false,
+          "raw": " url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)"
+        },
+        "line": 2,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    background-image"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

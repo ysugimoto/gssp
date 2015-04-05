@@ -1,0 +1,15 @@
+[
+  {
+    "selector": {
+      "selector": "@-moz-document",
+      "atrule": true,
+      "before": "",
+      "after": " ",
+      "raw": "@-moz-document/* near */ /* filter */ url(\"example.com/{\") /* a */ "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

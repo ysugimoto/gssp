@@ -1,0 +1,189 @@
+[
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a "
+    },
+    "rules": [
+      {
+        "property": "background",
+        "value": {
+          "data": "url(\"a).png\")",
+          "line": 2,
+          "column": 17,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " url(\"a).png\")"
+        },
+        "line": 2,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    background"
+      },
+      {
+        "property": "background",
+        "value": {
+          "data": "url(a;a)",
+          "line": 3,
+          "column": 17,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " url(a;a)"
+        },
+        "line": 3,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    background"
+      },
+      {
+        "property": "background",
+        "value": {
+          "data": "\\;a",
+          "line": 4,
+          "column": 17,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " \\;a"
+        },
+        "line": 4,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    background"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": ":not([foo=\")\"])",
+      "atrule": false,
+      "before": "\n\n",
+      "after": " ",
+      "raw": "\n\n:not([foo=\")\"]) "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 7,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": ":not(div)",
+      "atrule": false,
+      "before": "\n",
+      "after": " ",
+      "raw": "\n:not(div/*)*/) "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 8,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": ":not(:nth-child(2n of [foo=\")\"]))",
+      "atrule": false,
+      "before": "\n",
+      "after": " ",
+      "raw": "\n:not(:nth-child(2n of [foo=\")\"])) "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 9,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "[foo=\\\"]",
+      "atrule": false,
+      "before": "\n",
+      "after": " ",
+      "raw": "\n[foo=\\\"] "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 10,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "[foo=\\{]",
+      "atrule": false,
+      "before": "\n",
+      "after": " ",
+      "raw": "\n[foo=\\{] "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 11,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "[foo=\\(] { } [foo=yes\\:\\(it\\'s\\ work\\)]",
+      "atrule": false,
+      "before": "\n",
+      "after": " ",
+      "raw": "\n[foo=\\(] { }\n[foo=yes\\:\\(it\\'s\\ work\\)] "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 13,
+    "column": -12
+  },
+  {
+    "selector": {
+      "selector": "\\@noat",
+      "atrule": false,
+      "before": "\n\n",
+      "after": " ",
+      "raw": "\n\n\\@noat "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 15,
+    "column": 1
+  },
+  {
+    "selector": {
+      "selector": "h1\\\\",
+      "atrule": false,
+      "before": "\n\n",
+      "after": "",
+      "raw": "\n\nh1\\\\"
+    },
+    "rules": [
+      {
+        "property": "color",
+        "value": {
+          "data": "\\\\",
+          "line": 18,
+          "column": 12,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " \\\\"
+        },
+        "line": 18,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    color"
+      }
+    ],
+    "controls": [],
+    "line": 17,
+    "column": 1
+  }
+]

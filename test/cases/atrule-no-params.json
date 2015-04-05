@@ -1,0 +1,15 @@
+[
+  {
+    "selector": {
+      "selector": "@page",
+      "atrule": true,
+      "before": "",
+      "after": "",
+      "raw": "@page"
+    },
+    "rules": [],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

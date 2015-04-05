@@ -1,0 +1,33 @@
+[
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a "
+    },
+    "rules": [
+      {
+        "property": "color",
+        "value": {
+          "data": "black",
+          "line": 2,
+          "column": 9,
+          "before": " ",
+          "after": "",
+          "semicolon": false,
+          "raw": " black"
+        },
+        "line": 2,
+        "column": 2,
+        "before": "\n\u0009",
+        "after": "",
+        "raw": "\n\u0009color"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

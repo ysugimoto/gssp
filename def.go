@@ -1,4 +1,4 @@
-package css
+package gssp
 
 type CSSDefinition struct {
 	Selector *CSSSelector     `json:"selector"`

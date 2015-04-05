@@ -1,0 +1,33 @@
+[
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a "
+    },
+    "rules": [
+      {
+        "property": "color",
+        "value": {
+          "data": "a b",
+          "line": 1,
+          "column": 12,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " a/* ; */ b"
+        },
+        "line": 1,
+        "column": 5,
+        "before": " ",
+        "after": "",
+        "raw": " color"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

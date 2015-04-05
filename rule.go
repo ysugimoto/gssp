@@ -1,4 +1,4 @@
-package css
+package gssp
 
 type CSSRule struct {
 	Property  string    `json:"property"`

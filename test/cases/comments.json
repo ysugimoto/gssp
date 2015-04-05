@@ -1,0 +1,81 @@
+[
+  {
+    "selector": {
+      "selector": "div",
+      "atrule": false,
+      "before": "\n\n\n",
+      "after": " ",
+      "raw": "/* a { color: black } */\n/**/\n/* */\ndiv "
+    },
+    "rules": [
+      {
+        "property": "color",
+        "value": {
+          "data": "black",
+          "line": 6,
+          "column": 12,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " black"
+        },
+        "line": 6,
+        "column": -7,
+        "before": "\n    \n    ",
+        "after": "",
+        "raw": "\n    /* inside */\n    color"
+      },
+      {
+        "property": "border-radius",
+        "value": {
+          "data": "3px / 7px",
+          "line": 8,
+          "column": 20,
+          "before": " ",
+          "after": "",
+          "semicolon": false,
+          "raw": " 3px / 7px"
+        },
+        "line": 8,
+        "column": -8,
+        "before": "\n    \n    ",
+        "after": "",
+        "raw": "\n    /* between */\n    border-radius"
+      }
+    ],
+    "controls": [],
+    "line": 4,
+    "column": -32
+  },
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "\n\n\n",
+      "after": " ",
+      "raw": "\n/* b */\n\na "
+    },
+    "rules": [
+      {
+        "property": "color",
+        "value": {
+          "data": "black",
+          "line": 14,
+          "column": 12,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " black"
+        },
+        "line": 14,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    color"
+      }
+    ],
+    "controls": [],
+    "line": 13,
+    "column": -6
+  }
+]

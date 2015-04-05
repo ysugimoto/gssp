@@ -1,0 +1,15 @@
+[
+  {
+    "selector": {
+      "selector": "@charset \"UTF-8\"",
+      "atrule": true,
+      "before": "",
+      "after": "",
+      "raw": "@charset \"UTF-8\""
+    },
+    "rules": [],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

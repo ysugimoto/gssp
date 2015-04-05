@@ -1,0 +1,92 @@
+[
+  {
+    "selector": {
+      "selector": "@supports (animation-name: test)",
+      "atrule": true,
+      "before": "",
+      "after": " ",
+      "raw": "@supports (animation-name: test) "
+    },
+    "rules": [],
+    "controls": [
+      {
+        "selector": {
+          "selector": "@-custom-keyframe anim",
+          "atrule": true,
+          "before": "\n    ",
+          "after": " ",
+          "raw": "\n    @-custom-keyframe anim "
+        },
+        "rules": [],
+        "controls": [
+          {
+            "selector": {
+              "selector": "from",
+              "atrule": false,
+              "before": "\n        ",
+              "after": " ",
+              "raw": "\n        from "
+            },
+            "rules": [
+              {
+                "property": "color",
+                "value": {
+                  "data": "black",
+                  "line": 4,
+                  "column": 20,
+                  "before": " ",
+                  "after": "",
+                  "semicolon": true,
+                  "raw": " black"
+                },
+                "line": 4,
+                "column": 13,
+                "before": "\n            ",
+                "after": "",
+                "raw": "\n            color"
+              }
+            ],
+            "controls": [],
+            "line": 3,
+            "column": 9
+          },
+          {
+            "selector": {
+              "selector": "to",
+              "atrule": false,
+              "before": "\n        ",
+              "after": " ",
+              "raw": "\n        to "
+            },
+            "rules": [
+              {
+                "property": "color",
+                "value": {
+                  "data": "white",
+                  "line": 7,
+                  "column": 20,
+                  "before": " ",
+                  "after": "",
+                  "semicolon": false,
+                  "raw": " white"
+                },
+                "line": 7,
+                "column": 13,
+                "before": "\n            ",
+                "after": "",
+                "raw": "\n            color"
+              }
+            ],
+            "controls": [],
+            "line": 6,
+            "column": 9
+          }
+        ],
+        "line": 2,
+        "column": 5
+      }
+    ],
+    "line": 1,
+    "column": 1
+  }
+]

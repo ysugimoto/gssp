@@ -1,0 +1,15 @@
+[
+  {
+    "selector": {
+      "selector": "a b",
+      "atrule": false,
+      "before": "\n",
+      "after": " ",
+      "raw": "\na/* { } */ b "
+    },
+    "rules": [],
+    "controls": [],
+    "line": 2,
+    "column": 1
+  }
+]

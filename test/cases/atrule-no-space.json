@@ -1,0 +1,15 @@
+[
+  {
+    "selector": {
+      "selector": "@import\"test.css\"",
+      "atrule": true,
+      "before": "",
+      "after": "",
+      "raw": "@import\"test.css\""
+    },
+    "rules": [],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

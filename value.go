@@ -1,4 +1,4 @@
-package css
+package gssp
 
 type CSSValue struct {
 	Value     string `json:"data"`

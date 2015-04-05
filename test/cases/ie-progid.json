@@ -1,0 +1,33 @@
+[
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a "
+    },
+    "rules": [
+      {
+        "property": "filter",
+        "value": {
+          "data": "progid:DXImageTransform.Microsoft.Blur(pixelradius=2) progid:DXImageTransform.Microsoft.Wheel(duration=3)",
+          "line": 2,
+          "column": 13,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " progid:DXImageTransform.Microsoft.Blur(pixelradius=2) progid:DXImageTransform.Microsoft.Wheel(duration=3)"
+        },
+        "line": 2,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    filter"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

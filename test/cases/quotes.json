@@ -1,0 +1,50 @@
+[
+  {
+    "selector": {
+      "selector": "a::before",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a::before "
+    },
+    "rules": [
+      {
+        "property": "content",
+        "value": {
+          "data": "\";'@ \\\"\"",
+          "line": 2,
+          "column": 14,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " \";'@ /**/\\\"\""
+        },
+        "line": 2,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    content"
+      },
+      {
+        "property": "content",
+        "value": {
+          "data": "'\\'\"\\\\'",
+          "line": 3,
+          "column": 14,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " '\\'\"\\\\'"
+        },
+        "line": 3,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    content"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "selector": {
+      "selector": "a",
+      "atrule": false,
+      "before": "",
+      "after": " ",
+      "raw": "a "
+    },
+    "rules": [
+      {
+        "property": "color",
+        "value": {
+          "data": "black",
+          "line": 2,
+          "column": 12,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " black"
+        },
+        "line": 2,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    color"
+      },
+      {
+        "property": "background",
+        "value": {
+          "data": "white",
+          "line": 3,
+          "column": 17,
+          "before": " ",
+          "after": "",
+          "semicolon": true,
+          "raw": " white"
+        },
+        "line": 3,
+        "column": 5,
+        "before": "\n    ",
+        "after": "",
+        "raw": "\n    background"
+      }
+    ],
+    "controls": [],
+    "line": 1,
+    "column": 1
+  }
+]
