@@ -3,53 +3,43 @@ package css
 import (
 	"bytes"
 	"regexp"
-
-	"github.com/k0kubun/pp"
 )
 
 // Byte number of signatures
 const (
-	SELECTOR_OPEN      = 123
-	SELECTOR_CLOSE     = 125
-	PROPERTY_SEPARSTOR = 58
-	VALUE_END          = 59
-
-	COMMENT_SLASH = 47
-	COMMENT_STAR  = 42
-
-	CONTROL_SIGNATURE = 64
-
-	DOUBLE_QUOTE = 34
-	SINGLE_QUOTE = 39
-
-	PARENTHEIS_LEFT  = 40
-	PARENTHEIS_RIGHT = 41
-
-	LINE_FEED = 10
-
-	ESCAPE_SEQUENCE = 92
+	SELECTOR_OPEN      = 123 // "{"
+	SELECTOR_CLOSE     = 125 // "}"
+	PROPERTY_SEPARSTOR = 58  // ":"
+	VALUE_END          = 59  // ";"
+	COMMENT_SLASH      = 47  // "/"
+	COMMENT_STAR       = 42  // "*"
+	CONTROL_SIGNATURE  = 64  // "@"
+	DOUBLE_QUOTE       = 34  // "\""
+	SINGLE_QUOTE       = 39  // "'"
+	PARENTHEIS_LEFT    = 40  // "("
+	PARENTHEIS_RIGHT   = 41  // ")"
+	LINE_FEED          = 10  // "\n"
+	CARRIAGE_RETURN    = 13  // "\r"
+	ESCAPE_SEQUENCE    = 92  // "\"
 )
 
 var (
+	crlf    = regexp.MustCompile("\r\n")
 	defList = NewDefinitionList()
 	defRule *CSSRule
-
-	crlf      = regexp.MustCompile("\r\n")
-	trimRegex = regexp.MustCompile("([\n\t ]*)([a-zA-Z0-9-]+)([;\n ]*)")
 )
 
 type CSSParser struct {
-	lineNumber        int
-	definitions       []*CSSDefinition
-	comment           bool
-	quoting           bool
-	singleQuote       bool
-	doubleQuote       bool
-	inSelector        bool
-	skipping          bool
-	isEscaping        bool
-	globalDefinitions []*CSSDefinition
-	stack             []byte
+	lineNumber  int
+	definitions []*CSSDefinition
+	comment     bool
+	quoting     bool
+	singleQuote bool
+	doubleQuote bool
+	inSelector  bool
+	skipping    bool
+	isEscaping  bool
+	stack       []byte
 }
 
 func NewParser() *CSSParser {
@@ -60,17 +50,13 @@ func NewParser() *CSSParser {
 	}
 }
 
-func (c *CSSParser) Parse(buffer []byte) string {
+func (c *CSSParser) Parse(buffer []byte) []*CSSDefinition {
 	LF := []byte("\n")
 	buffer = crlf.ReplaceAll(buffer, LF)
 
 	c.execParse(buffer)
 
-	for _, css := range c.definitions {
-		pp.Print(css)
-	}
-
-	return ""
+	return c.definitions
 }
 
 func (c *CSSParser) processEscapeSequence() {
@@ -83,14 +69,14 @@ func (c *CSSParser) processLineFeed(index, point *int) {
 	val := bytes.Trim(c.stack, ";:\n\t ")
 	if len(val) > 0 {
 		if !c.inSelector && val[0] == CONTROL_SIGNATURE {
-			c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
+			c.definitions = append(c.definitions, NewDefinition(
 				NewSelector(c.stack),
 				*index,
 				*point-len(c.stack)+1,
 			))
 			c.stack = []byte{}
 		} else if defRule != nil {
-			defRule.SetValue(c.stack, *index, *point-len(c.stack)+1)
+			defRule.SetValue(c.stack, *index, *point-len(c.stack)+1, false)
 			defList.GetLastChild().AddRule(defRule)
 			defRule = nil
 			c.stack = []byte{}
@@ -124,7 +110,7 @@ func (c *CSSParser) processPropertySeparator(index, point *int) {
 
 func (c *CSSParser) processValueEnd(index, point *int) {
 	if !c.inSelector {
-		c.globalDefinitions = append(c.globalDefinitions, NewDefinition(
+		c.definitions = append(c.definitions, NewDefinition(
 			NewSelector(c.stack),
 			*index,
 			*point-len(c.stack)+1,
@@ -132,7 +118,7 @@ func (c *CSSParser) processValueEnd(index, point *int) {
 		c.stack = []byte{}
 		return
 	}
-	defRule.SetValue(c.stack, *index, *point-len(c.stack)+1)
+	defRule.SetValue(c.stack, *index, *point-len(c.stack)+1, true)
 	defList.GetLastChild().AddRule(defRule)
 	defRule = nil
 	c.stack = []byte{}
@@ -141,7 +127,7 @@ func (c *CSSParser) processValueEnd(index, point *int) {
 func (c *CSSParser) processSelectorClose(index, point *int) {
 	cDef := defList.GetLastChild()
 	if defRule != nil {
-		defRule.SetValue(c.stack, *index, *point-len(c.stack)+1)
+		defRule.SetValue(c.stack, *index, *point-len(c.stack)+1, false)
 		cDef.AddRule(defRule)
 		defRule = nil
 		c.stack = []byte{}
@@ -184,15 +170,18 @@ func (c *CSSParser) execParse(line []byte) {
 	for point := 0; point < len(line); point++ {
 		if c.isCommentStart(line, point) {
 			c.comment = true
+			c.stack = append(c.stack, line[point])
 			continue
 		}
 		if c.isCommentEnd(line, point) {
 			c.comment = false
+			c.stack = append(c.stack, COMMENT_STAR, COMMENT_SLASH)
 			point++
 			continue
 		}
 
 		if c.comment {
+			c.stack = append(c.stack, line[point])
 			continue
 		}
 
@@ -266,7 +255,7 @@ func (c *CSSParser) execParse(line []byte) {
 
 	// check remains
 	if defRule != nil {
-		defRule.SetValue(c.stack, index, len(line)-len(c.stack)+1)
+		defRule.SetValue(c.stack, index, len(line)-len(c.stack)+1, false)
 		defList.GetLastChild().AddRule(defRule)
 		defRule = nil
 	}

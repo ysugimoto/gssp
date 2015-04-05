@@ -1,10 +1,12 @@
 package css
 
 type CSSSelector struct {
-	selector        string
-	controlSelector bool
-	before          string
-	after           string
+	Selector        string
+	ControlSelector bool
+	Before          string
+	After           string
+	//RawData         []byte
+	RawData string
 }
 
 func NewSelector(selBytes []byte) *CSSSelector {
@@ -18,17 +20,18 @@ func NewSelector(selBytes []byte) *CSSSelector {
 	}
 
 	return &CSSSelector{
-		before:          string(before),
-		selector:        string(selector),
-		controlSelector: isControl,
-		after:           string(after),
+		Before:          string(before),
+		Selector:        string(selector),
+		ControlSelector: isControl,
+		After:           string(after),
+		RawData:         string(selBytes),
 	}
 }
 
 func (s *CSSSelector) String() string {
-	return s.selector
+	return s.Selector
 }
 
 func (s *CSSSelector) IsControlSelector() bool {
-	return s.controlSelector
+	return s.ControlSelector
 }

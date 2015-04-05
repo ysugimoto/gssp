@@ -1,40 +1,40 @@
 package css
 
 type CSSDefinition struct {
-	selector *CSSSelector
-	rules    []*CSSRule
-	controls []*CSSDefinition
-	defLine  int
-	point    int
-	parent   *CSSDefinition
+	Selector *CSSSelector
+	Rules    []*CSSRule
+	Controls []*CSSDefinition
+	DefLine  int
+	Point    int
+	Parent   *CSSDefinition
 }
 
 func NewDefinition(selector *CSSSelector, line, point int) *CSSDefinition {
 	return &CSSDefinition{
-		selector: selector,
-		defLine:  line,
-		point:    point,
-		rules:    make([]*CSSRule, 0),
-		controls: make([]*CSSDefinition, 0),
+		Selector: selector,
+		DefLine:  line,
+		Point:    point,
+		Rules:    make([]*CSSRule, 0),
+		Controls: make([]*CSSDefinition, 0),
 	}
 }
 
 func (d *CSSDefinition) AddRule(rule *CSSRule) {
-	d.rules = append(d.rules, rule)
+	d.Rules = append(d.Rules, rule)
 }
 
 func (d *CSSDefinition) AddControl(control *CSSDefinition) {
-	d.controls = append(d.controls, control)
+	d.Controls = append(d.Controls, control)
 }
 
 func (d *CSSDefinition) AddChild(def *CSSDefinition) {
-	def.parent = d
+	def.Parent = d
 }
 
 func (d *CSSDefinition) GetParent() *CSSDefinition {
-	return d.parent
+	return d.Parent
 }
 
 func (d *CSSDefinition) IsControl() bool {
-	return d.selector.IsControlSelector()
+	return d.Selector.IsControlSelector()
 }
