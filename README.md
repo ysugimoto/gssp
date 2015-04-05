@@ -48,7 +48,7 @@ func main() {
     out := result.ToPrettyJSONString()
     // Get parse Data
     data := result.Get()
-    // .. and modify tree ad you like
+    // .. and modify tree as you like
 }
 ```
 
