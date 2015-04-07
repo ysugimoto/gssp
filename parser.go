@@ -2,6 +2,9 @@ package gssp
 
 import (
 	"bytes"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 // Byte number of signatures
@@ -36,6 +39,9 @@ type CSSParser struct {
 	defRule      *CSSRule
 	charPoint    int
 	stack        []byte
+	targetFile   string
+	rawBuffer    []byte
+	totalLines   int
 }
 
 func NewParser() *CSSParser {
@@ -48,12 +54,46 @@ func NewParser() *CSSParser {
 	}
 }
 
-func (c *CSSParser) Parse(buffer []byte) CSSParseResult {
+func (c *CSSParser) Parse(buffer []byte) (result *CSSParseResult) {
+	c.targetFile = "[inlined-buffer]"
 	c.execParse(buffer)
+	result = NewParseResult(
+		c.definitions.Get(),
+		c.targetFile,
+		c.rawBuffer,
+		c.totalLines,
+	)
 
-	return CSSParseResult{
-		data: c.definitions.Get(),
+	return
+}
+
+func (c *CSSParser) ParseFile(file string) (result *CSSParseResult, err error) {
+	var absPath string
+	if !filepath.IsAbs(file) {
+		absPath, _ = filepath.Abs(file)
+	} else {
+		absPath = file
 	}
+
+	if _, err = os.Stat(absPath); err != nil {
+		return nil, err
+	}
+
+	var buffer []byte
+	if buffer, err = ioutil.ReadFile(absPath); err != nil {
+		return nil, err
+	}
+
+	c.targetFile = absPath
+	c.execParse(buffer)
+	result = NewParseResult(
+		c.definitions.Get(),
+		c.targetFile,
+		c.rawBuffer,
+		c.totalLines,
+	)
+
+	return result, nil
 }
 
 func (c *CSSParser) processEscapeSequence() {
@@ -190,6 +230,7 @@ func (c *CSSParser) isCommentEnd(line []byte, point int) (end bool) {
 }
 
 func (c *CSSParser) execParse(line []byte) {
+	c.rawBuffer = line
 	index := 1
 	for point := 0; point < len(line); point++ {
 		c.charPoint++
@@ -295,4 +336,6 @@ func (c *CSSParser) execParse(line []byte) {
 	if c.defTree.Remains() {
 		c.definitions.Add(c.defTree.GetLastChild())
 	}
+
+	c.totalLines = index
 }

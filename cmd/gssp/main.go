@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"github.com/ysugimoto/go-cliargs"
 	"github.com/ysugimoto/gssp"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 )
 
 func usage() {
@@ -14,7 +12,7 @@ func usage() {
 GSSP: Go Style-Sheet Postprocessor
 =================================
 Usage:
-    gssp [source_file] [options]
+    gssp [source_file ...] [options]
 
 Options:
     -h, --help   : Show this help
@@ -28,6 +26,7 @@ func main() {
 	args := cliarg.NewArguments()
 	args.Alias("h", "help", false)
 	args.Alias("p", "pretty", false)
+	args.Alias("s", "stats", false)
 
 	args.Parse()
 
@@ -35,37 +34,40 @@ func main() {
 		usage()
 	}
 
-	file, exists := args.GetCommandAt(1)
-	if !exists {
+	if args.GetCommandSize() == 0 {
 		fmt.Println("[ERROR] Source CSS file must be suppied.")
 		usage()
 	}
-	absPath, _ := filepath.Abs(file)
-	if _, err := os.Stat(absPath); err != nil {
-		fmt.Println("[ERROR] Source CSS file " + file + " is not exists.")
-		os.Exit(1)
+
+	result := gssp.NewParseResult(
+		make([]*gssp.CSSDefinition, 0),
+	)
+
+	files := args.GetCommands()
+	for _, file := range files {
+		parser := gssp.NewParser()
+		if parsed, err := parser.ParseFile(file); err != nil {
+			fmt.Println(err.Error)
+			os.Exit(1)
+		} else {
+			result.Merge(parsed)
+		}
 	}
 
-	prettyPrint, _ := args.GetOptionAsBool("pretty")
-	result := execute(absPath, prettyPrint)
-
-	fmt.Print(result)
+	var out string
+	if s, _ := args.GetOptionAsBool("stats"); s {
+		out = analyze(result)
+	} else {
+		pretty, _ := args.GetOptionAsBool("pretty")
+		if pretty {
+			out = result.ToPrettyJSONString()
+		} else {
+			out = result.ToJSONString()
+		}
+	}
+	fmt.Print(out)
 }
 
-func execute(path string, pretty bool) string {
-	parser := gssp.NewParser()
-
-	fp, _ := os.Open(path)
-	buffer, _ := ioutil.ReadAll(fp)
-
-	defer func() {
-		fp.Close()
-	}()
-
-	result := parser.Parse(buffer)
-	if pretty {
-		return result.ToPrettyJSONString()
-	} else {
-		return result.ToJSONString()
-	}
+func analyze(result *gssp.CSSParseResult) string {
+	return ""
 }
