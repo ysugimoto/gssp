@@ -62,5 +62,5 @@ Yoshiaki Sugimoto
 
 ## Thanks
 
-[PostCSS)](https://github.com/postcss/postcss): for test cases and way of thinking
+[PostCSS](https://github.com/postcss/postcss): for test cases and way of thinking
 
