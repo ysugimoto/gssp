@@ -1,6 +1,7 @@
 package css_test
 
 import (
+	"bytes"
 	. "github.com/r7kamura/gospel"
 	"github.com/ysugimoto/gssp"
 	"io/ioutil"
@@ -54,7 +55,8 @@ func TestParser(t *testing.T) {
 					jsonData, _ := ioutil.ReadAll(jsonfp)
 					actual := parser.Parse(data).ToPrettyJSONString()
 
-					expect := string(jsonData)
+					// Trim trail \n for vim, ...
+					expect := string(bytes.TrimRight(jsonData, "\n"))
 
 					Expect(actual).To(Equal, expect)
 				})
