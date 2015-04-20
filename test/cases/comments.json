@@ -11,13 +11,13 @@
       {
         "property": "color",
         "value": {
-          "data": "black",
+          "data": "blue",
           "line": 6,
           "column": 12,
           "before": " ",
           "after": "",
           "semicolon": true,
-          "raw": " black"
+          "raw": " blue"
         },
         "line": 6,
         "column": -7,

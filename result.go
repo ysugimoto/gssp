@@ -4,23 +4,24 @@ import "encoding/json"
 
 type CSSParseResult struct {
 	data     []*CSSDefinition
-	lines    int
-	rawBytes []byte
-	file     string
+	Lines    int
+	RawBytes []byte
+	Files    []string
 }
 
-func NewParseResult(data []*CSSDefinition, file string, raw []byte, lines int) *CSSParseResult {
+func NewParseResult(data []*CSSDefinition) *CSSParseResult {
 	return &CSSParseResult{
 		data:     data,
-		lines:    lines,
-		file:     file,
-		rawBytes: raw,
+		Files:    []string{},
+		RawBytes: []byte{},
 	}
 }
 
 func (c *CSSParseResult) Merge(result *CSSParseResult) {
 	c.data = append(c.data, result.data...)
-	println(len(c.data))
+	c.Lines += result.Lines
+	c.RawBytes = append(c.RawBytes, result.RawBytes...)
+	c.Files = append(c.Files, result.Files...)
 }
 
 func (c *CSSParseResult) ToJSON() []byte {

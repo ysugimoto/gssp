@@ -57,12 +57,9 @@ func NewParser() *CSSParser {
 func (c *CSSParser) Parse(buffer []byte) (result *CSSParseResult) {
 	c.targetFile = "[inlined-buffer]"
 	c.execParse(buffer)
-	result = NewParseResult(
-		c.definitions.Get(),
-		c.targetFile,
-		c.rawBuffer,
-		c.totalLines,
-	)
+	result = NewParseResult(c.definitions.Get())
+	result.RawBytes = append(result.RawBytes, buffer...)
+	result.Lines += c.totalLines
 
 	return
 }
@@ -84,14 +81,8 @@ func (c *CSSParser) ParseFile(file string) (result *CSSParseResult, err error) {
 		return nil, err
 	}
 
-	c.targetFile = absPath
-	c.execParse(buffer)
-	result = NewParseResult(
-		c.definitions.Get(),
-		c.targetFile,
-		c.rawBuffer,
-		c.totalLines,
-	)
+	result = c.Parse(buffer)
+	result.Files = append(result.Files, absPath)
 
 	return result, nil
 }

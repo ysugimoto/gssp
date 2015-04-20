@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/k0kubun/pp"
 	"github.com/ysugimoto/go-cliargs"
 	"github.com/ysugimoto/gssp"
+	"github.com/ysugimoto/gssp/stats"
 	"os"
 )
 
@@ -39,9 +41,7 @@ func main() {
 		usage()
 	}
 
-	result := gssp.NewParseResult(
-		make([]*gssp.CSSDefinition, 0),
-	)
+	result := gssp.NewParseResult([]*gssp.CSSDefinition{})
 
 	files := args.GetCommands()
 	for _, file := range files {
@@ -56,7 +56,8 @@ func main() {
 
 	var out string
 	if s, _ := args.GetOptionAsBool("stats"); s {
-		out = analyze(result)
+		stat := stats.NewStats(result)
+		pp.Print(stat)
 	} else {
 		pretty, _ := args.GetOptionAsBool("pretty")
 		if pretty {
