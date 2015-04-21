@@ -2,6 +2,8 @@ package stats
 
 import (
 	"github.com/ysugimoto/gssp"
+	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -76,9 +78,82 @@ func (s *Stats) divide(def *gssp.CSSDefinition) {
 }
 
 func (s *Stats) Analyze() {
-	//ruleAnalysis := Rules.Analyze(s.rules)
-	//selectorAnalysis := Selectors.Analyze(s.selectors)
+	//ruleAnalysis := s.analyzeRules()
+	//selectorAnalysis := s.analyzeSelectors()
+
+	// TODO: immplement
 	//declAnalysis := Declarations.Analyze(s.declarations)
 
 	//analysis := make(map[string]interface{})
+}
+
+func (s *Stats) analyzeRules() Rules {
+	rules := Rules{
+		cssDeclarations: RuleInfo{},
+	}
+
+	for _, def := range s.rules {
+		r := Rule{
+			selector: []string{},
+			count:    len(def.Rules),
+		}
+		for _, selector := range strings.Split(def.Selector.String(), ",") {
+			r.selector = append(r.selector, strings.Trim(selector, " "))
+		}
+		rules.cssDeclarations = append(rules.cssDeclarations, r)
+	}
+
+	sort.Sort(sort.Reverse(rules.cssDeclarations))
+	for _, d := range rules.cssDeclarations {
+		rules.totalCssDeclarations += d.count
+	}
+
+	return rules
+}
+
+func (s *Stats) analyzeSelectors() Selectors {
+	ret := Selectors{
+		identifiers: SelectorIdentifiers{},
+	}
+
+	// regexes
+	attributeRegex := regexp.MustCompile("\\[.+\\]$")
+	pseudoRegex := regexp.MustCompile("\\s?([>\\+|~])\\s?")
+	whiteSpaceRegex := regexp.MustCompile("\\s+")
+	splitCountRegex := regexp.MustCompile("\\s|>|\\+|~|:|[\\w\\]]\\.|[\\w\\]]#|\\[")
+
+	for _, selector := range s.selectors {
+		if strings.Contains(selector, "#") {
+			ret.idSelectors++
+		}
+
+		if strings.Contains(selector, "*") {
+			ret.universalSelectors++
+		}
+
+		sel := strings.Trim(selector, " ")
+
+		if attributeRegex.MatchString(sel) {
+			ret.unqualifiedAttributeSelectors++
+		}
+
+		// TODO: javascript/user-specified hook
+
+		trimmed := pseudoRegex.ReplaceAllString(selector, "$1")
+		trimmed = whiteSpaceRegex.ReplaceAllString(selector, " ")
+		splitted := splitCountRegex.Split(trimmed, -1)
+		ret.identifiers = append(ret.identifiers, SelectorIdentifier{
+			selector: selector,
+			count:    len(splitted),
+		})
+	}
+
+	for _, ident := range ret.identifiers {
+		ret.totalIdentifiers += ident.count
+	}
+
+	sort.Sort(ret.identifiers)
+
+	return ret
+
 }
