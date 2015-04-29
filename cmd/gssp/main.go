@@ -57,6 +57,7 @@ func main() {
 	var out string
 	if s, _ := args.GetOptionAsBool("stats"); s {
 		stat := stats.NewStats(result)
+		stat.Analyze()
 		pp.Print(stat)
 	} else {
 		pretty, _ := args.GetOptionAsBool("pretty")
